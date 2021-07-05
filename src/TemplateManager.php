@@ -47,14 +47,14 @@ class TemplateManager
             $containsSummaryHtml = strpos($text, '[lesson:summary_html]');
             $containsSummary     = strpos($text, '[lesson:summary]');
 
-            if ($containsSummaryHtml !== false) {
+            if ($containsSummaryHtml) {
                 $text = str_replace(
                     '[lesson:summary_html]',
                     Lesson::renderHtml($this->lessonRepository),
                     $text
                 );
             }
-            if ($containsSummary !== false) {
+            if ($containsSummary) {
                 $text = str_replace(
                     '[lesson:summary]',
                     Lesson::renderText($this->lessonRepository),
@@ -62,28 +62,28 @@ class TemplateManager
                 );
             }
 
-            (strpos($text, '[lesson:instructor_name]') !== false) and $text = str_replace('[lesson:instructor_name]', $this->instructorRepository->firstname, $text);
+            (strpos($text, '[lesson:instructor_name]')) and $text = str_replace('[lesson:instructor_name]', $this->instructorRepository->firstname, $text);
         }
 
         if ($lesson->meetingPointId) {
-            if (strpos($text, '[lesson:meeting_point]') !== false) {
+            if (strpos($text, '[lesson:meeting_point]')) {
                 $text = str_replace('[lesson:meeting_point]', $this->meetingPointRepository->name, $text);
             }
         }
 
-        if (strpos($text, '[lesson:start_date]') !== false) {
+        if (strpos($text, '[lesson:start_date]')) {
             $text = str_replace('[lesson:start_date]', $lesson->start_time->format('d/m/Y'), $text);
         }
 
-        if (strpos($text, '[lesson:start_time]') !== false) {
+        if (strpos($text, '[lesson:start_time]')) {
             $text = str_replace('[lesson:start_time]', $lesson->start_time->format('H:i'), $text);
         }
 
-        if (strpos($text, '[lesson:end_time]') !== false) {
+        if (strpos($text, '[lesson:end_time]')) {
             $text = str_replace('[lesson:end_time]', $lesson->start_time->format('H:i'), $text);
         }
 
-        if (strpos($text, '[lesson:instructor_link]') !== false) {
+        if (strpos($text, '[lesson:instructor_link]')) {
             $text = str_replace('[lesson:link]', $this->meetingPointRepository->url . '/' . $this->instructorRepository->id . '/lesson/' . $this->lessonRepository->id, $text);
         } else {
             $text = str_replace('[lesson:link]', '', $text);
@@ -95,7 +95,7 @@ class TemplateManager
          */
         $_user  = (isset($data['user'])  and ($data['user']  instanceof Learner))  ? $data['user']  : $this->applicationContext->getCurrentUser();
         if ($_user) {
-            (strpos($text, '[user:first_name]') !== false) and $text = str_replace('[user:first_name]', ucfirst(mb_strtolower($_user->firstname)), $text);
+            (strpos($text, '[user:first_name]')) and $text = str_replace('[user:first_name]', ucfirst(mb_strtolower($_user->firstname)), $text);
         }
 
         return $text;
