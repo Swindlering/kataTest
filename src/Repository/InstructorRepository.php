@@ -1,6 +1,13 @@
 <?php
 
-class InstructorRepository implements Repository
+namespace App\Repository;
+
+use App\Entity\Instructor;
+use App\Helper\SingletonTrait;
+use \Faker\Factory;
+use App\Repository\RepositoryInterface;
+
+class InstructorRepository implements RepositoryInterface
 {
     use SingletonTrait;
 
@@ -12,8 +19,8 @@ class InstructorRepository implements Repository
      */
     public function __construct()
     {
-        $this->firstname = Faker\Factory::create()->firstName;
-        $this->lastname = Faker\Factory::create()->lastName;
+        $this->firstname = Factory::create()->firstName;
+        $this->lastname = Factory::create()->lastName;
     }
 
     /**
@@ -21,7 +28,7 @@ class InstructorRepository implements Repository
      *
      * @return Instructor
      */
-    public function getById($id)
+    public function getById($id): Instructor
     {
         // DO NOT MODIFY THIS METHOD
         return new Instructor(

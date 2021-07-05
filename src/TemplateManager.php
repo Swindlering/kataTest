@@ -1,5 +1,15 @@
 <?php
 
+namespace App;
+
+use App\Entity\Lesson;
+use App\Entity\Learner;
+use App\Entity\Template;
+use App\Repository\LessonRepository;
+use App\Repository\MeetingPointRepository;
+use App\Repository\InstructorRepository;
+use App\Context\ApplicationContext;
+
 class TemplateManager
 {
     private $lessonRepository;
@@ -7,10 +17,8 @@ class TemplateManager
     private $instructorRepository;
     private $applicationContext;
 
-    public function __construct () {
-        $this->lessonRepository = LessonRepository::getInstance()->getById($lesson->id);
-        $this->meetingPointRepository = MeetingPointRepository::getInstance()->getById($lesson->meetingPointId);
-        $this->instructorRepository = InstructorRepository::getInstance()->getById($lesson->instructorId);
+    public function __construct()
+    {
         $this->applicationContext = ApplicationContext::getInstance();
     }
     
@@ -31,8 +39,11 @@ class TemplateManager
     {
         $lesson = (isset($data['lesson']) and $data['lesson'] instanceof Lesson) ? $data['lesson'] : null;
 
-        if ($lesson) {
+        $this->lessonRepository = LessonRepository::getInstance()->getById($lesson->id);
+        $this->meetingPointRepository  = MeetingPointRepository::getInstance()->getById($lesson->meetingPointId);
+        $this->instructorRepository = InstructorRepository::getInstance()->getById($lesson->instructorId);
 
+        if ($lesson) {
             $containsSummaryHtml = strpos($text, '[lesson:summary_html]');
             $containsSummary     = strpos($text, '[lesson:summary]');
 

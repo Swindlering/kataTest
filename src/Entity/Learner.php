@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Entity;
+
 class Learner
 {
     public $id;

@@ -1,5 +1,10 @@
 <?php
 
+namespace App\Context;
+use App\Entity\Learner;
+use App\Entity\MeetingPoint;
+use App\Helper\SingletonTrait;
+
 class ApplicationContext
 {
     use SingletonTrait;

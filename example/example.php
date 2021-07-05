@@ -1,21 +1,25 @@
 <?php
+require_once __DIR__ . './../vendor/autoload.php';
 
-require_once __DIR__ . '/../vendor/autoload.php';
+use \Faker\Factory;
+use App\Entity\Template;
+use App\Entity\Lesson;
+use App\TemplateManager;
 
-require_once __DIR__ . '/../src/Entity/Instructor.php';
-require_once __DIR__ . '/../src/Entity/Lesson.php';
-require_once __DIR__ . '/../src/Entity/MeetingPoint.php';
-require_once __DIR__ . '/../src/Entity/Template.php';
-require_once __DIR__ . '/../src/Entity/Learner.php';
-require_once __DIR__ . '/../src/Helper/SingletonTrait.php';
-require_once __DIR__ . '/../src/Context/ApplicationContext.php';
-require_once __DIR__ . '/../src/Repository/Repository.php';
-require_once __DIR__ . '/../src/Repository/InstructorRepository.php';
-require_once __DIR__ . '/../src/Repository/LessonRepository.php';
-require_once __DIR__ . '/../src/Repository/MeetingPointRepository.php';
-require_once __DIR__ . '/../src/TemplateManager.php';
+// require_once __DIR__ . '/../src/Entity/Instructor.php';
+// require_once __DIR__ . '/../src/Entity/Lesson.php';
+// require_once __DIR__ . '/../src/Entity/MeetingPoint.php';
+// require_once __DIR__ . '/../src/Entity/Template.php';
+// require_once __DIR__ . '/../src/Entity/Learner.php';
+// require_once __DIR__ . '/../src/Helper/SingletonTrait.php';
+// require_once __DIR__ . '/../src/Context/ApplicationContext.php';
+// require_once __DIR__ . '/../src/Repository/Repository.php';
+// require_once __DIR__ . '/../src/Repository/InstructorRepository.php';
+// require_once __DIR__ . '/../src/Repository/LessonRepository.php';
+// require_once __DIR__ . '/../src/Repository/MeetingPointRepository.php';
+// require_once __DIR__ . '/../src/TemplateManager.php';
 
-$faker = \Faker\Factory::create();
+$faker = Factory::create();
 
 $template = new Template(
     1,
@@ -29,6 +33,7 @@ Bien cordialement,
 
 L'équipe Ornikar
 ");
+
 $templateManager = new TemplateManager();
 
 $start_at = $faker->dateTimeBetween("-1 month");

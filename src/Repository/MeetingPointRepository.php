@@ -1,6 +1,13 @@
 <?php
 
-class MeetingPointRepository implements Repository
+namespace App\Repository;
+
+use App\Entity\MeetingPoint;
+use App\Helper\SingletonTrait;
+use \Faker\Factory;
+use App\Repository\RepositoryInterface;
+
+class MeetingPointRepository implements RepositoryInterface
 {
     use SingletonTrait;
 
@@ -14,8 +21,8 @@ class MeetingPointRepository implements Repository
     public function __construct()
     {
         // DO NOT MODIFY THIS METHOD
-        $this->url = Faker\Factory::create()->url;
-        $this->name = Faker\Factory::create()->city;
+        $this->url = Factory::create()->url;
+        $this->name = Factory::create()->city;
     }
 
     /**
@@ -23,7 +30,7 @@ class MeetingPointRepository implements Repository
      *
      * @return MeetingPoint
      */
-    public function getById($id)
+    public function getById($id): MeetingPoint
     {
         // DO NOT MODIFY THIS METHOD
         return new MeetingPoint($id, $this->url, $this->name);

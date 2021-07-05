@@ -1,6 +1,13 @@
 <?php
 
-class LessonRepository implements Repository
+namespace App\Repository;
+
+use App\Entity\Lesson;
+use App\Helper\SingletonTrait;
+use \Faker\Factory;
+use App\Repository\RepositoryInterface;
+
+class LessonRepository implements RepositoryInterface
 {
     use SingletonTrait;
 
@@ -16,13 +23,12 @@ class LessonRepository implements Repository
     public function __construct()
     {
         // DO NOT MODIFY THIS METHOD
-        $generator = Faker\Factory::create();
+        $generator = Factory::create();
 
         $this->siteId = $generator->numberBetween(1, 10);
         $this->instructorId = $generator->numberBetween(1, 200);
         $this->start_at = $generator->dateTimeBetween("-1 month");
-        $this->end_at = $this->start_at->add(new DateInterval('PT1H'));
-
+        $this->end_at = $this->start_at->add(new \DateInterval('PT1H'));
     }
 
     /**
@@ -30,7 +36,7 @@ class LessonRepository implements Repository
      *
      * @return Lesson
      */
-    public function getById($id)
+    public function getById($id): Lesson
     {
         // DO NOT MODIFY THIS METHOD
         return new Lesson(
