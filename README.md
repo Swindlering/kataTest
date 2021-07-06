@@ -39,4 +39,6 @@ What do we expect from you:
  - several commits, with an explicit message each time
  - a file / message / email explaining your process and principles you've followed
 
+**[Check the tutorial](install.md)**
+
 **Good luck!**

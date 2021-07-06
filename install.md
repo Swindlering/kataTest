@@ -25,3 +25,7 @@
 4. Check If it work 
 
 `php -f example/example.php`
+
+5. Run the test 
+
+`composer test`
