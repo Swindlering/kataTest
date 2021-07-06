@@ -37,4 +37,19 @@ class InstructorRepository implements RepositoryInterface
             $this->lastname
         );
     }
+
+    /**
+     * return firstname
+     */
+    public function getFirstname()
+    {
+        return $this->firstname;
+    }
+    /**
+     * return lastname
+     */
+    public function getLastname()
+    {
+        return $this->lastname;
+    }
 }

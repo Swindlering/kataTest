@@ -1,25 +1,28 @@
 <?php
+namespace App\Tests;
 
-require_once __DIR__ . '/../src/Entity/Instructor.php';
-require_once __DIR__ . '/../src/Entity/Lesson.php';
-require_once __DIR__ . '/../src/Entity/MeetingPoint.php';
-require_once __DIR__ . '/../src/Entity/Template.php';
-require_once __DIR__ . '/../src/Entity/Learner.php';
-require_once __DIR__ . '/../src/Helper/SingletonTrait.php';
-require_once __DIR__ . '/../src/Context/ApplicationContext.php';
-require_once __DIR__ . '/../src/Repository/Repository.php';
-require_once __DIR__ . '/../src/Repository/InstructorRepository.php';
-require_once __DIR__ . '/../src/Repository/LessonRepository.php';
-require_once __DIR__ . '/../src/Repository/MeetingPointRepository.php';
-require_once __DIR__ . '/../src/TemplateManager.php';
+use PHPUnit\Framework\TestCase;
+use \Faker\Factory;
+use App\TemplateManager;
+use App\Entity\Lesson;
+use App\Entity\Template;
+use App\Repository\LessonRepository;
+use App\Repository\MeetingPointRepository;
+use App\Repository\InstructorRepository;
+use App\Context\ApplicationContext;
 
-class TemplateManagerTest extends PHPUnit_Framework_TestCase
+class TemplateManagerTest extends TestCase
 {
     /**
      * Init the mocks
      */
     public function setUp()
     {
+        $this->faker = Factory::create();
+
+        $this->instructorRepository = InstructorRepository::getInstance();
+        $this->meetingPointRepository = MeetingPointRepository::getInstance();
+        $this->applicationContext = ApplicationContext::getInstance();
     }
 
     /**
@@ -30,33 +33,60 @@ class TemplateManagerTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @test
+     * @replaceIntoText
      */
-    public function test()
+    public function testReplaceIntoTextOK()
     {
-        $faker = \Faker\Factory::create();
+        $templateManager = new TemplateManager();
+        $search =  '[search:search]';
+        $replace =  '29,99';
+        $text = 'Ornikar, Auto-École en Ligne - Obtenez votre Code pour [search:search]€';
+        $templateManager->replaceIntoText($search, $replace, $text);
+        $this->assertEquals('Ornikar, Auto-École en Ligne - Obtenez votre Code pour 29,99€', $text);
+    }
 
-        $expectedInstructor = InstructorRepository::getInstance()->getById($faker->randomNumber());
-        $expectedMeetingPoint = MeetingPointRepository::getInstance()->getById($faker->randomNumber());
-        $expectedUser = ApplicationContext::getInstance()->getCurrentUser();
-        $start_at = $faker->dateTimeBetween("-1 month");
-        $end_at = $start_at->add(new DateInterval('PT1H'));
+    /**
+     * @replaceIntoText
+     */
+    public function testReplaceIntoTextNothingMatched()
+    {
+        $templateManager = new TemplateManager();
+        $search =  '[searching:searching]';
+        $replace =  '29,99';
+        $text = 'Ornikar, Auto-École en Ligne - Obtenez votre Code pour [search:search]€';
+        $templateManager->replaceIntoText($search, $replace, $text);
+        $this->assertEquals('Ornikar, Auto-École en Ligne - Obtenez votre Code pour [search:search]€', $text);
+    }
+    /**
+     * @expectedException Exception
+     */
+    public function testGetTemplateComputedKo()
+    {
+        $template = $this->getTemplate();
+        $templateManager = new TemplateManager();
 
-        $lesson = new Lesson($faker->randomNumber(), $faker->randomNumber(), $faker->randomNumber(), $start_at, $end_at);
+        $message = $templateManager->getTemplateComputed(
+            $template,
+            [
+                'lesson' => null
+            ]
+        );
+    }
+    /**
+     * @getTemplateComputed
+     */
+    public function testGetTemplateComputed()
+    {
+        $expectedInstructor =  $this->instructorRepository->getById($this->faker->randomNumber());
+        $expectedMeetingPoint = $this->meetingPointRepository->getById($this->faker->randomNumber());
+        $expectedUser =  $this->applicationContext->getCurrentUser();
+        
+        $start_at = $this->faker->dateTimeBetween("-1 month");
+        $end_at = $start_at->add(new \DateInterval('PT1H'));
 
-        $template = new Template(
-            1,
-            'Votre leçon de conduite avec [lesson:instructor_name]',
-            "
-Bonjour [user:first_name],
+        $lesson = new Lesson($this->faker->randomNumber(), $this->faker->randomNumber(), $this->faker->randomNumber(), $start_at, $end_at);
 
-La reservation du [lesson:start_date] de [lesson:start_time] à [lesson:end_time] avec [lesson:instructor_name] a bien été prise en compte!
-Voici votre point de rendez-vous: [lesson:meeting_point].
-
-Bien cordialement,
-
-L'équipe Ornikar
-");
+        $template = $this->getTemplate();
         $templateManager = new TemplateManager();
 
         $message = $templateManager->getTemplateComputed(
@@ -77,5 +107,21 @@ Bien cordialement,
 
 L'équipe Ornikar
 ", $message->content);
+    }
+
+    private function getTemplate(){
+        return new Template(
+            1,
+            'Votre leçon de conduite avec [lesson:instructor_name]',
+            "
+Bonjour [user:first_name],
+
+La reservation du [lesson:start_date] de [lesson:start_time] à [lesson:end_time] avec [lesson:instructor_name] a bien été prise en compte!
+Voici votre point de rendez-vous: [lesson:meeting_point].
+
+Bien cordialement,
+
+L'équipe Ornikar
+");
     }
 }

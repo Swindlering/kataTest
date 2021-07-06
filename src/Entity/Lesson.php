@@ -4,19 +4,19 @@ namespace App\Entity;
 
 class Lesson
 {
-    public $id;
-    public $meetingPointId;
-    public $instructorId;
-    public $start_time;
-    public $end_time;
+    private $id;
+    private $meetingPointId;
+    private $instructorId;
+    private $startTime;
+    private $endTime;
 
-    public function __construct($id, $meetingPointId, $instructorId, $start_time, $end_time)
+    public function __construct($id, $meetingPointId, $instructorId, $startTime, $endTime)
     {
         $this->id = $id;
         $this->meetingPointId = $meetingPointId;
         $this->instructorId = $instructorId;
-        $this->start_time = $start_time;
-        $this->end_time = $end_time;
+        $this->startTime = $startTime;
+        $this->endTime = $endTime;
     }
 
     public static function renderHtml(Lesson $lesson)
@@ -27,5 +27,35 @@ class Lesson
     public static function renderText(Lesson $lesson)
     {
         return (string) $lesson->id;
+    }
+    /**
+     * return id
+     */
+    public function getId(){
+        return $this->id;
+    }
+    /**
+     * return meetingPointId
+     */
+    public function getMeetingPointId(){
+        return $this->meetingPointId;
+    }
+    /**
+     * return instructorId
+     */
+    public function getInstructorId(){
+        return $this->instructorId;
+    }
+    /**
+     * return startTime
+     */
+    public function getStartTime(){
+        return $this->startTime;
+    }
+    /**
+     * return endTime
+     */
+    public function getEndTtime(){
+        return $this->endTime;
     }
 }

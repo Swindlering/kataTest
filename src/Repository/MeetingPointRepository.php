@@ -35,4 +35,18 @@ class MeetingPointRepository implements RepositoryInterface
         // DO NOT MODIFY THIS METHOD
         return new MeetingPoint($id, $this->url, $this->name);
     }
+    /**
+     * return url
+     */
+    public function getUrl()
+    {
+        return $this->url;
+    }
+    /**
+     * return name
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 }

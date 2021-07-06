@@ -20,17 +20,20 @@ class TemplateManager
     public function __construct()
     {
         $this->applicationContext = ApplicationContext::getInstance();
+        $this->lessonRepository = LessonRepository::getInstance();
+        $this->meetingPointRepository  = MeetingPointRepository::getInstance();
+        $this->instructorRepository = InstructorRepository::getInstance();
     }
     
     public function getTemplateComputed(Template $tpl, array $data)
     {
-        if (!$tpl) {
-            throw new \RuntimeException('no tpl given');
-        }
-
         $replaced = clone($tpl);
-        $replaced->subject = $this->computeText($replaced->subject, $data);
-        $replaced->content = $this->computeText($replaced->content, $data);
+        try {
+            $replaced->subject = $this->computeText($replaced->subject, $data);
+            $replaced->content = $this->computeText($replaced->content, $data);
+        } catch (\Exception $e) {
+            throw new \Exception( $e->getMessage());
+        }
 
         return $replaced;
     }
@@ -38,56 +41,31 @@ class TemplateManager
     private function computeText($text, array $data)
     {
         $lesson = (isset($data['lesson']) and $data['lesson'] instanceof Lesson) ? $data['lesson'] : null;
+        if (is_null($lesson)) {
+            throw new \Exception( 'No lesson Found');
+        }
+        $oLesson = $this->lessonRepository->getById($lesson->getId());
 
-        $this->lessonRepository = LessonRepository::getInstance()->getById($lesson->id);
-        $this->meetingPointRepository  = MeetingPointRepository::getInstance()->getById($lesson->meetingPointId);
-        $this->instructorRepository = InstructorRepository::getInstance()->getById($lesson->instructorId);
+        // manage summary_html
+        $this->replaceIntoText('[lesson:summary_html]', Lesson::renderHtml($oLesson), $text);
+        // manage summary
+        $this->replaceIntoText('[lesson:summary]', Lesson::renderHtml($oLesson), $text);
+        (strpos($text, '[lesson:instructor_name]')) and $text = str_replace('[lesson:instructor_name]', $this->instructorRepository->getFirstname(), $text);
 
-        if ($lesson) {
-            $containsSummaryHtml = strpos($text, '[lesson:summary_html]');
-            $containsSummary     = strpos($text, '[lesson:summary]');
-
-            if ($containsSummaryHtml) {
-                $text = str_replace(
-                    '[lesson:summary_html]',
-                    Lesson::renderHtml($this->lessonRepository),
-                    $text
-                );
-            }
-            if ($containsSummary) {
-                $text = str_replace(
-                    '[lesson:summary]',
-                    Lesson::renderText($this->lessonRepository),
-                    $text
-                );
-            }
-
-            (strpos($text, '[lesson:instructor_name]')) and $text = str_replace('[lesson:instructor_name]', $this->instructorRepository->firstname, $text);
+        if ($lesson->getMeetingPointId()) {
+            // manage meeting point
+            $this->replaceIntoText('[lesson:meeting_point]', $this->meetingPointRepository->getName(), $text);
         }
 
-        if ($lesson->meetingPointId) {
-            if (strpos($text, '[lesson:meeting_point]')) {
-                $text = str_replace('[lesson:meeting_point]', $this->meetingPointRepository->name, $text);
-            }
-        }
-
-        if (strpos($text, '[lesson:start_date]')) {
-            $text = str_replace('[lesson:start_date]', $lesson->start_time->format('d/m/Y'), $text);
-        }
-
-        if (strpos($text, '[lesson:start_time]')) {
-            $text = str_replace('[lesson:start_time]', $lesson->start_time->format('H:i'), $text);
-        }
-
-        if (strpos($text, '[lesson:end_time]')) {
-            $text = str_replace('[lesson:end_time]', $lesson->start_time->format('H:i'), $text);
-        }
-
-        if (strpos($text, '[lesson:instructor_link]')) {
-            $text = str_replace('[lesson:link]', $this->meetingPointRepository->url . '/' . $this->instructorRepository->id . '/lesson/' . $this->lessonRepository->id, $text);
-        } else {
-            $text = str_replace('[lesson:link]', '', $text);
-        }
+        // manage date and time
+        $this->replaceIntoText('[lesson:start_date]', $lesson->getStartTime()->format('d/m/Y'), $text);
+        $this->replaceIntoText('[lesson:start_time]', $lesson->getStartTime()->format('H:i'), $text);
+        $this->replaceIntoText('[lesson:end_time]', $lesson->getStartTime()->format('H:i'), $text);
+        
+        $link =  (strpos($text, '[lesson:instructor_link]'))
+            ?$this->meetingPointRepository->getUrl() . '/' . $this->instructorRepository->getId() . '/lesson/' . $oLesson->getId()
+            : '';
+        $this->replaceIntoText('[lesson:instructor_link]', $link, $text);
 
         /*
          * USER
@@ -99,5 +77,18 @@ class TemplateManager
         }
 
         return $text;
+    }
+    /**
+     *
+     */
+    public function replaceIntoText($search, $replace, &$text)
+    {
+        if (strpos($text, $search)) {
+            $text = str_replace(
+                $search,
+                $replace,
+                $text
+            );
+        }
     }
 }
